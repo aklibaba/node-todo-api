@@ -1,65 +1,34 @@
 /**
  * Created by Aleksander on 2017-07-18.
  */
-const app = require('express');
+const express = require('express');
+const bodyParser = require('body-parser');
+
+//Local imports
 const {mongoose} = require('./db/mongoose');
+const {Todo} = require('./models/todo');
+const {User} = require('./models/user');
 
-const Todo = mongoose.model('Todo', new Schema({
-  text: {
-    type: String,
-    required: true,
-    // enum: ['buy', 'clean', 'paint'],
-    minlength: 1,
-    trim: true
-  },
-  completed: {
-    type: Boolean,
-    default: false
-  },
-  completedAt: {
-    type: Date,
-    default: null
-  }
-}));
+const app = express();
 
-const User = mongoose.model('Userios', new Schema({
-  email: {
-    type: String,
-    required:true,
-    minlength: 1,
-    trim: true
-  }
-}));
+app.use(bodyParser.json());
 
-const newUser = new User({
-  email: 'alejandro.moloniewicz@gmail.com'
+app.post('/todos', (req, res) => {
+  const newTodo = new Todo({
+    text: req.body.text,
+    completed: req.body.completed
+  });
+  newTodo.save().then( doc => {
+    console.log('Saved:', doc);
+    res.send(doc);
+  }, e => {
+    res.status(400);
+    res.send(e);
+  });
 });
 
-newUser.save().then( res => {
-  console.log(res);
-}, err => {
-  console.log('Unable to save user', err);
-});
 
-const newTodo = new Todo({
-  text: 'buy',
-  completed: false
-});
 
-newTodo.save().then(res => {
-  console.log('Save todo', res);
-}, err => {
-  console.log('Unable to save todo', err);
-});
-
-const buyGroceries = new Todo({
-  text: "  buy Groceries  ",
-  completed: true,
-  completedAt: new Date('Apr 15 2017 19:00:00 EST')
-});
-
-buyGroceries.save().then(res => {
-  console.log(`Saved todo: ${res}`);
-}, err => {
-  console.log(`Unable to sve todo: ${err}`);
+app.listen(3000, () => {
+  console.log('Server started on port 3000');
 });
