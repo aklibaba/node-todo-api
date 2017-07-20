@@ -2,11 +2,7 @@
  * Created by Aleksander on 2017-07-18.
  */
 const app = require('express');
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+const {mongoose} = require('./db/mongoose');
 
 const Todo = mongoose.model('Todo', new Schema({
   text: {
