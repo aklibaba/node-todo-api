@@ -18,7 +18,7 @@ app.post('/todos', (req, res) => {
     text: req.body.text,
     completed: req.body.completed
   });
-  newTodo.save().then( doc => {
+  newTodo.save().then(doc => {
     console.log('Saved:', doc);
     res.send(doc);
   }, e => {
@@ -27,7 +27,13 @@ app.post('/todos', (req, res) => {
   });
 });
 
-
+app.get('/todos', (req, res) => {
+  Todo.find().then(todos => {
+    res.send({todos});
+  }).catch( error => {
+    res.status(400).send({error});
+  })
+});
 
 app.listen(3000, () => {
   console.log('Server started on port 3000');
