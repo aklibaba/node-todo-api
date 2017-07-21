@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+const {ObjectID} = require('mongodb');
 
 const app = express();
 
@@ -33,6 +34,25 @@ app.get('/todos', (req, res) => {
   }).catch( error => {
     res.status(400).send({error});
   })
+});
+
+app.get('/todos/:id', (req, res) => {
+  const id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(400).send('The id you provided is not valid');
+  }
+
+  Todo.findById(id)
+    .then( todo => {
+    if (!todo) { //case: no resource found
+      return res.status(404).send('Todo was not found');
+    }
+      res.send({todo}); //case: resource found
+  })
+    .catch( err => { //case: bad syntax
+      res.status(400).send('There was an error. Please check the id you provided');
+    });
 });
 
 app.listen(3000, () => {

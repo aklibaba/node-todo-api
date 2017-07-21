@@ -7,9 +7,11 @@ const request = require('supertest');
 const {app} = require('../server');
 const {Todo} = require('../models/todo');
 
+const {ObjectId} = require('mongodb');
+
 const todos = [
-  {text: "First Todo"},
-  {text: "Second todo"}
+  {text: "First Todo", _id: new ObjectId()},
+  {text: "Second todo", _id: new ObjectId()}
 ];
 
 
@@ -75,5 +77,39 @@ describe('GET /todos', () => {
       })
       .end(done)
   })
+
+});
+
+describe('GET /todos:id', () => {
+
+  const testId = todos[0]['_id'];
+
+  it('should return todo doc', (done) => {
+    request(app)
+      .get(`/todos/${testId}`)
+      .expect(200)
+      .expect( res => {
+        expect(res.body.todo._id).toBe(String(testId));
+        expect(res.body.todo.text).toBe('First Todo');
+      })
+      .end(done)
+
+  });
+
+  it('should return a 404 if todo not found', (done) => {
+    request(app)
+      .get(`/todos/${new ObjectId()}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return a 400 if id has incorrect syntax', (done) => {
+
+    request(app)
+      .get('/todos/123')
+      .expect(400)
+      .end(done)
+  });
+
 
 });
