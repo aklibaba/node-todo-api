@@ -14,11 +14,11 @@
   "author": "Aleksander Moloniewicz",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
+    "async-each": "^1.0.1",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
     "mongodb": "^2.2.5",
-    "mongoose": "^4.5.9",
-    "async-each": "latest"
+    "mongoose": "^4.11.3"
   },
   "devDependencies": {
     "expect": "^1.20.2",
