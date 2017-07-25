@@ -11,7 +11,7 @@ const {ObjectId} = require('mongodb');
 
 const todos = [
   {text: "First Todo", _id: new ObjectId()},
-  {text: "Second todo", _id: new ObjectId()}
+  {text: "Second todo", _id: new ObjectId(), completed: true, completedAt: 33}
 ];
 
 let i = 0;
@@ -137,16 +137,16 @@ describe('DELETE /todos/:id', () => {
         expect(res.body.deletedTodo._id).toBe(String(testId));
         expect(res.body.deletedTodo.text).toBe(todos[0]['text']);
       })
-      .end( (err, res) => {
+      .end((err, res) => {
         if (err) {
           return done(err);
         }
         Todo.findById(testId)
-          .then( todo => {
+          .then(todo => {
             expect(todo).toNotExist('does not exist');
             done();
           })
-          .catch( err => done(err));
+          .catch(err => done(err));
       });
   });
 
@@ -164,5 +164,31 @@ describe('DELETE /todos/:id', () => {
       .end(done);
   });
 
+
+});
+
+describe('PATCH /todos/:id', () => {
+  const testId = todos[0]['_id'];
+  const testText = "I just updated";
+
+  it('should update the todo', done => {
+    request(app)
+      .patch(`/todos/${testId}`)
+      .send({
+        text: testText,
+        completed: true
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.todo.text).toBe(testText);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA('string');
+      })
+      .end(done);
+  });
+
+  // it('should clear completed at when todo is not completed', done => {
+  //
+  // });
 
 });
