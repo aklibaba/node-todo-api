@@ -12,14 +12,14 @@ const id = "596f5ae5cbf9980c2484168b";
 //   console.log('your id is not valid');
 // }
 
-Todo.remove({}).then( res => {
-  console.log(res);
-});
+// Todo.remove({}).then( res => {
+//   console.log(res);
+// });
+//
+// Todo.findOneAndRemove({}).then( doc => {
+//   console.log(doc);
+// });
 
-Todo.findOneAndRemove({}).then( doc => {
-  console.log(doc);
-});
-
-Todo.findByIdAndRemove(id).then( doc => {
+Todo.findByIdAndRemove("5975cb4e055e5d633d0c99fb").then( doc => {
   console.log(doc);
 });

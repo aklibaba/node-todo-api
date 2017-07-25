@@ -14,13 +14,24 @@ const todos = [
   {text: "Second todo", _id: new ObjectId()}
 ];
 
+let i = 0;
 
 beforeEach((done) => {
+
+
+  console.log(`beforeEach called for ${++i}`);
   Todo.remove({}) //remove all docs in todos collection
     .then(() => {
-    return Todo.insertMany(todos) //insert new todos to the todos collection
-  })
-    .then(() => done()); //call done to indicate that the async operations have finished
+      return Todo.insertMany(todos) //insert new todos to the todos collection
+    })
+    .then(() => {
+      Todo.find({}).then(todos => {
+        console.log(`Fetched todos are: ${todos}`);
+        done();
+      }).catch(error => {
+      });
+    }); //call done to indicate that the async operations have finished
+
 });
 
 describe('POST /todos', () => {
@@ -72,7 +83,7 @@ describe('GET /todos', () => {
     request(app)
       .get('/todos')
       .expect(200)
-      .expect( res => {
+      .expect(res => {
         expect(res.body.todos.length).toBe(2);
       })
       .end(done)
@@ -88,7 +99,7 @@ describe('GET /todos:id', () => {
     request(app)
       .get(`/todos/${testId}`)
       .expect(200)
-      .expect( res => {
+      .expect(res => {
         expect(res.body.todo._id).toBe(String(testId));
         expect(res.body.todo.text).toBe('First Todo');
       })
@@ -109,6 +120,48 @@ describe('GET /todos:id', () => {
       .get('/todos/123')
       .expect(400)
       .end(done)
+  });
+
+
+});
+
+describe('DELETE /todos/:id', () => {
+
+  const testId = todos[0]['_id'];
+
+  it('should remove a todo', done => {
+    request(app)
+      .delete(`/todos/${testId}`)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.deletedTodo._id).toBe(String(testId));
+        expect(res.body.deletedTodo.text).toBe(todos[0]['text']);
+      })
+      .end( (err, res) => {
+        if (err) {
+          return done(err);
+        }
+        Todo.findById(testId)
+          .then( todo => {
+            expect(todo).toNotExist('does not exist');
+            done();
+          })
+          .catch( err => done(err));
+      });
+  });
+
+  it('should return 404 if todo not found', done => {
+    request(app)
+      .delete(`/todos/5975cc9c055e5d633d0c99fd`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 400 if id not valid', done => {
+    request(app)
+      .delete('/todos/123')
+      .expect(400)
+      .end(done);
   });
 
 
