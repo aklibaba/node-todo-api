@@ -168,12 +168,13 @@ describe('DELETE /todos/:id', () => {
 });
 
 describe('PATCH /todos/:id', () => {
-  const testId = todos[0]['_id'];
+  const testId1 = todos[0]['_id'];
+  const testId2 = todos[1]['_id'];
   const testText = "I just updated";
 
   it('should update the todo', done => {
     request(app)
-      .patch(`/todos/${testId}`)
+      .patch(`/todos/${testId1}`)
       .send({
         text: testText,
         completed: true
@@ -187,8 +188,15 @@ describe('PATCH /todos/:id', () => {
       .end(done);
   });
 
-  // it('should clear completed at when todo is not completed', done => {
-  //
-  // });
+  it('should clear completed at when todo is not completed', done => {
+    request(app)
+      .patch(`/todos/${testId2}`)
+      .expect(200)
+      .expect( res => {
+        expect(res.body.todo.completedAt).toNotExist();
+        expect(res.body.todo.completed).toNotExist();
+      })
+      .end(done);
+  });
 
 });
