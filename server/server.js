@@ -33,6 +33,21 @@ app.post('/todos', (req, res) => {
   });
 });
 
+
+app.post('/user', (req, res) => {
+  const body = _.pick(req.body, ['email', 'password']);
+  const newUser = new User(body);
+  newUser.save()
+    .then(user => {
+      res.send(user);
+    })
+    .catch( e => {
+      res.status(400);
+      res.send(e);
+    });
+});
+
+
 app.get('/todos', (req, res) => {
   Todo.find().then(todos => {
     res.send({todos});
@@ -58,10 +73,6 @@ app.get('/todos/:id', (req, res) => {
     .catch(err => { //case: bad syntax
       res.status(400).send('There was an error. Please check the id you provided');
     });
-});
-
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
 });
 
 
@@ -115,6 +126,10 @@ app.patch('/todos/:id', (req, res) => {
     .catch(err => {
       res.status(400).send();
     })
+});
+
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 });
 
 
