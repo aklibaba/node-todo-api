@@ -3,6 +3,7 @@
  */
 require('./config/config');
 
+const {authenticate} = require('./middleware/authenticate');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
@@ -39,16 +40,23 @@ app.post('/user', (req, res) => {
   const newUser = new User(body);
 
   newUser.save()
-    .then( user => {
+    .then(user => {
       return user.generateAuthToken();
     })
-    .then( token => {
+    .then(token => {
       res.header('x-auth', token).send(newUser)
     })
-    .catch( e => {
+    .catch(e => {
       res.status(400);
       res.send(e);
     });
+});
+
+
+
+//will require authentication in form f the token
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 
 
@@ -59,6 +67,7 @@ app.get('/todos', (req, res) => {
     res.status(400).send({error});
   })
 });
+
 
 app.get('/todos/:id', (req, res) => {
   const id = req.params.id;
