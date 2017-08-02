@@ -3,36 +3,16 @@
  */
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectId} = require('mongodb');
 
 const {app} = require('../server');
 const {Todo} = require('../models/todo');
-
-const {ObjectId} = require('mongodb');
-
-const todos = [
-  {text: "First Todo", _id: new ObjectId()},
-  {text: "Second todo", _id: new ObjectId(), completed: true, completedAt: 33}
-];
-
-let i = 0;
-
-beforeEach((done) => {
+const {todos, users, populateUsers, populateTodo,} = require('./seed/seed');
 
 
-  console.log(`beforeEach called for ${++i}`);
-  Todo.remove({}) //remove all docs in todos collection
-    .then(() => {
-      return Todo.insertMany(todos) //insert new todos to the todos collection
-    })
-    .then(() => {
-      Todo.find({}).then(todos => {
-        console.log(`Fetched todos are: ${todos}`);
-        done();
-      }).catch(error => {
-      });
-    }); //call done to indicate that the async operations have finished
+beforeEach(populateTodo);
+beforeEach(populateUsers);
 
-});
 
 describe('POST /todos', () => {
   it('should create a new todo', (done) => {
@@ -192,7 +172,7 @@ describe('PATCH /todos/:id', () => {
     request(app)
       .patch(`/todos/${testId2}`)
       .expect(200)
-      .expect( res => {
+      .expect(res => {
         expect(res.body.todo.completedAt).toNotExist();
         expect(res.body.todo.completed).toNotExist();
       })
