@@ -7,6 +7,8 @@ const {authenticate} = require('./middleware/authenticate');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+
 
 const app = express();
 
@@ -53,7 +55,6 @@ app.post('/users', (req, res) => {
 });
 
 
-
 //will require authentication in form f the token
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
@@ -66,6 +67,28 @@ app.get('/todos', (req, res) => {
   }).catch(error => {
     res.status(400).send({error});
   })
+});
+
+/**
+ * POST /users/login: Login Route
+ * will be used by a user that doesn't have a token, so he cannot use the authenticate middleware
+ */
+app.post('/users/login', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  User.findByCredentials(email, password)
+    .then(user => {
+      return user.generateAuthToken()
+        .then(token => {
+          res.set('x-auth', token);
+          res.status(200).send(user);
+        });
+    })
+    .catch(err => {
+      res.status(400).send(err)
+    });
+
 });
 
 
