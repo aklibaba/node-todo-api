@@ -181,6 +181,7 @@ describe('PATCH /todos/:id', () => {
   });
 
 });
+
 describe('GET /user/me', () => {
   it('should return user if authenticated', (done) => {
     request(app)
@@ -230,6 +231,8 @@ describe('POST /users', () => {
           expect(user).toExist();
           expect(user.password).toNotBe(password);
           done();
+        }).catch(err => {
+          done(err)
         });
       });
   });
@@ -251,6 +254,56 @@ describe('POST /users', () => {
       })
       .expect(400)
       .end(done)
+  });
+
+
+});
+
+describe('POST /users/login', () => {
+  it('should login user and return auth token', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[0].email,
+        password: users[0].password
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.header['x-auth']).toExist();
+        expect(res.body.email).toBe(users[0].email);
+        expect(res.body._id).toBe(users[0]._id.toHexString());
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        User.findById(users[0]._id)
+          .then(user => {
+            expect(user.tokens[1]).toInclude({
+              access: 'auth',
+              token: res.header['x-auth']
+            });
+            done();
+          }).catch(err => {
+          done(err)
+        })
+      });
+
+  });
+
+  it('should reject invalid login', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+          email: users[0].email,
+          password: 'test'
+        }
+      )
+      .expect(400)
+      .expect( res => {
+        expect(res.headers['x-auth']).toNotExist();
+      })
+      .end(done);
   });
 
 
