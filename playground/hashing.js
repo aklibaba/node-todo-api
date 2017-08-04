@@ -1,41 +1,20 @@
 /**
- * Created by SAMSUNG on 30.07.2017.
+ * Created by Aleksander on 2017-08-01.
  */
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-const data = {
-  id: 4
-};
+const password = '123QWEasd!';
 
-const token = jwt.sign(data, '123secret');
-console.log(token);
+bcrypt.genSalt(10, (err, salt) => {
+  bcrypt.hash(password, salt, (err, hash) => {
+    console.log(hash);
+  });
+});
 
-const decoded = jwt.verify(token + '123', '123secret');
-console.log(decoded);
+const hashedPassword = '$2a$10$ctfJB6t/8M0ROzOhXcGCK.sD85t5P55aYoYXNcoZmas/oIanlkN5O';
 
-// const message = 'I am some kind of message';
-// const hashed = SHA256(message)
-// .toString();
-//
-//
-//
-//
-// const token = {
-//   data,
-//   hash: SHA256(JSON.stringify(data) + 'somesecret').toString()
-// };
-//
-// token.data.id = 5;
-// token.hash = SHA256(JSON.stringify(token.data)).toString();
-//
-// const resultHash = SHA256(JSON.stringify(data) + 'somesecret').toString();
-//
-// console.log(`resultHash: ${resultHash}`);
-// console.log(`token.hash: ${token.hash}`);
-//
-// if (resultHash === token.hash) {
-//   console.log(`data was not manipulated`);
-// } else {
-//   console.log(`data was manipulated`);
-// }
+bcrypt.compare('assd', hashedPassword, (err, res) => {
+  console.log(`Result is ${res}`);
+});

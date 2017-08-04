@@ -3,9 +3,12 @@
  */
 require('./config/config');
 
+const {authenticate} = require('./middleware/authenticate');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+
 
 const app = express();
 
@@ -33,26 +36,64 @@ app.post('/todos', (req, res) => {
   });
 });
 
-
-app.post('/user', (req, res) => {
+app.post('/users', (req, res) => {
   const body = _.pick(req.body, ['email', 'password']);
   const newUser = new User(body);
+
   newUser.save()
     .then(user => {
-      res.send(user);
+      return user.generateAuthToken();
     })
-    .catch( e => {
+    .then(token => {
+      res.header('x-auth', token).send(newUser)
+    })
+    .catch(e => {
       res.status(400);
       res.send(e);
     });
 });
 
+//will require authentication in form f the token
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
 
 app.get('/todos', (req, res) => {
   Todo.find().then(todos => {
     res.send({todos});
   }).catch(error => {
     res.status(400).send({error});
+  })
+});
+
+/**
+ * POST /users/login: Login Route
+ * will be used by a user that doesn't have a token, so he cannot use the authenticate middleware
+ */
+app.post('/users/login', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  User.findByCredentials(email, password)
+    .then(user => {
+      return user.generateAuthToken()
+        .then(token => {
+          res.set('x-auth', token);
+          res.status(200).send(user);
+        });
+    })
+    .catch(err => {
+      res.status(400).send(err)
+    });
+
+});
+
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token)
+    .then(() => {
+      res.status(200).send();
+    }).catch( err => {
+      res.status(400).send();
   })
 });
 
@@ -74,7 +115,6 @@ app.get('/todos/:id', (req, res) => {
       res.status(400).send('There was an error. Please check the id you provided');
     });
 });
-
 
 app.delete('/todos/:id', (req, res) => {
   const id = req.params.id;
