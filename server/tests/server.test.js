@@ -300,11 +300,30 @@ describe('POST /users/login', () => {
         }
       )
       .expect(400)
-      .expect( res => {
+      .expect(res => {
         expect(res.headers['x-auth']).toNotExist();
       })
       .end(done);
   });
 
 
+});
+
+describe('DELETE /users/me/token', () => {
+  it('should remove object containing token', (done) => {
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens.token)
+      .expect(200)
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        User.findById(users[0]['_id'])
+          .then(user => {
+            expect(user.tokens)
+          })
+      });
+  });
 });
