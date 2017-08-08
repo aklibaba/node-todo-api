@@ -313,7 +313,7 @@ describe('DELETE /users/me/token', () => {
   it('should remove object containing token', (done) => {
     request(app)
       .delete('/users/me/token')
-      .set('x-auth', users[0].tokens.token)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .end((err, res) => {
         if (err) {
@@ -322,7 +322,11 @@ describe('DELETE /users/me/token', () => {
 
         User.findById(users[0]['_id'])
           .then(user => {
-            expect(user.tokens)
+            expect(user.tokens.length).toBe(0);
+            done();
+          })
+          .catch( err => {
+            done(err);
           })
       });
   });

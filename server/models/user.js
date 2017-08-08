@@ -66,20 +66,6 @@ UserSchema.methods.removeToken = function (token) {
     }
   });
 
-  // return new Promise((resolve, reject) => {
-  //   user.tokens.forEach((tokenObj, i) => {
-  //     if (tokenObj.token === token) {
-  //       user.tokens.splice(i, 1);
-  //       user.save();
-  //       resolved = true;
-  //       return resolve();
-  //     }
-  //   });
-  //   if (!resolved) {
-  //     reject();
-  //   }
-  //
-  // });
 };
 
 UserSchema.statics.findByToken = function (token) {
