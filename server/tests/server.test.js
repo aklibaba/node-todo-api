@@ -21,6 +21,7 @@ describe('POST /todos', () => {
 
     request(app)
       .post('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send({text})
       .expect(200)
       .expect((res) => {
@@ -42,6 +43,7 @@ describe('POST /todos', () => {
   it('should not create todo with invalid body data', (done) => {
     request(app)
       .post('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send({})
       .expect(400)
       .end((err, res) => {
@@ -63,9 +65,10 @@ describe('GET /todos', () => {
   it('should get all todos', done => {
     request(app)
       .get('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect(res => {
-        expect(res.body.todos.length).toBe(2);
+        expect(res.body.todos.length).toBe(1);
       })
       .end(done)
   })
@@ -79,18 +82,30 @@ describe('GET /todos:id', () => {
   it('should return todo doc', (done) => {
     request(app)
       .get(`/todos/${testId}`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect(res => {
         expect(res.body.todo._id).toBe(String(testId));
-        expect(res.body.todo.text).toBe('First Todo');
+        expect(res.body.todo.text).toBe(todos[0].text);
       })
       .end(done)
 
   });
 
+  it('should not return todo doc created by another user', (done) => {
+    request(app)
+      .get(`/todos/${todos[1]._id.toHexString()}`)//this id belongs to user2 but we authenticate as user1
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(404)
+      .end(done)
+
+  });
+
+
   it('should return a 404 if todo not found', (done) => {
     request(app)
       .get(`/todos/${new ObjectId()}`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(404)
       .end(done);
   });
@@ -99,6 +114,7 @@ describe('GET /todos:id', () => {
 
     request(app)
       .get('/todos/123')
+      .set('x-auth', users[0].tokens[0].token)
       .expect(400)
       .end(done)
   });
@@ -113,6 +129,7 @@ describe('DELETE /todos/:id', () => {
   it('should remove a todo', done => {
     request(app)
       .delete(`/todos/${testId}`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect(res => {
         expect(res.body.deletedTodo._id).toBe(String(testId));
@@ -134,6 +151,7 @@ describe('DELETE /todos/:id', () => {
   it('should return 404 if todo not found', done => {
     request(app)
       .delete(`/todos/5975cc9c055e5d633d0c99fd`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(404)
       .end(done);
   });
@@ -141,6 +159,7 @@ describe('DELETE /todos/:id', () => {
   it('should return 400 if id not valid', done => {
     request(app)
       .delete('/todos/123')
+      .set('x-auth', users[0].tokens[0].token)
       .expect(400)
       .end(done);
   });
