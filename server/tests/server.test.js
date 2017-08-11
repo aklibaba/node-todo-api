@@ -175,6 +175,7 @@ describe('PATCH /todos/:id', () => {
   it('should update the todo', done => {
     request(app)
       .patch(`/todos/${testId1}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send({
         text: testText,
         completed: true
@@ -191,6 +192,7 @@ describe('PATCH /todos/:id', () => {
   it('should clear completed at when todo is not completed', done => {
     request(app)
       .patch(`/todos/${testId2}`)
+      .set('x-auth', users[1].tokens[0].token)
       .expect(200)
       .expect(res => {
         expect(res.body.todo.completedAt).toNotExist();

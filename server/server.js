@@ -148,9 +148,10 @@ app.delete('/todos/:id', authenticate, (req, res) => {
     })
 });
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
   const id = req.params.id;
   const body = _.pick(req.body, ['text', 'completed']);
+  const userId = req.user._id;
 
   if (!ObjectID.isValid(id)) {
     return res.status(400).send('The id you provided is not valid');
@@ -164,7 +165,10 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {
+  Todo.findOneAndUpdate({
+      _id: id,
+      _creator: userId
+    }, {
       $set: body
     },
     {new: true})
