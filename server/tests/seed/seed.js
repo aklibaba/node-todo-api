@@ -16,14 +16,21 @@ const users = [
     tokens: [
       {
         access: 'auth',
-        token: jwt.sign({_id: user1Id, access: 'auth'}, 'abc123').toString()
+        token: jwt.sign({_id: user1Id, access: 'auth'}, 'process.env.JWT_SECRET').toString()
       }
     ]
   },
   {
     _id: user2Id,
     email: 'piotr@ws.com',
-    password: 'twoPass'
+    password: 'twoPass',
+    tokens: [
+      {
+        access: 'auth',
+        token: jwt.sign({_id: user2Id, access: 'auth'}, 'process.env.JWT_SECRET').toString()
+      }
+    ]
+
   }
 ];
 
@@ -41,8 +48,8 @@ const populateUsers = function (done) {
 };
 
 const todos = [
-  {text: "First Todo", _id: new ObjectId()},
-  {text: "Second todo", _id: new ObjectId(), completed: true, completedAt: 33}
+  {text: "First Todo", _id: new ObjectId(), _creator: user1Id},
+  {text: "Second todo", _id: new ObjectId(), completed: true, completedAt: 33, _creator: user2Id}
 ];
 
 
@@ -56,6 +63,7 @@ const populateTodo = function (done) {
         console.log(`Fetched todos are: ${todos}`);
         done();
       }).catch(error => {
+        done(err)
       });
     }); //call done to indicate that the async operations have finished
 
