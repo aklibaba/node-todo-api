@@ -1,6 +1,8 @@
 /**
  * Created by Aleksander on 2017-07-20.
  */
+const {beforeEach, describe, it} = require("mocha");
+
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectId} = require('mongodb');
@@ -27,7 +29,7 @@ describe('POST /todos', () => {
       .expect((res) => {
         expect(res.body.text).toBe(text);
       })
-      .end((err, res) => {
+      .end((err) => {
         if (err) {
           return done(err);
         }
@@ -46,7 +48,7 @@ describe('POST /todos', () => {
       .set('x-auth', users[0].tokens[0].token)
       .send({})
       .expect(400)
-      .end((err, res) => {
+      .end((err) => {
         if (err) {
           return done(err);
         }
@@ -135,7 +137,7 @@ describe('DELETE /todos/:id', () => {
         expect(res.body.deletedTodo._id).toBe(String(testId));
         expect(res.body.deletedTodo.text).toBe(todos[0]['text']);
       })
-      .end((err, res) => {
+      .end((err) => {
         if (err) {
           return done(err);
         }
@@ -336,7 +338,7 @@ describe('DELETE /users/me/token', () => {
       .delete('/users/me/token')
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .end((err, res) => {
+      .end((err) => {
         if (err) {
           return done(err);
         }

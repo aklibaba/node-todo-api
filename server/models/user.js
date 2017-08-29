@@ -105,6 +105,7 @@ UserSchema.statics.findByCredentials = function (email, password) {
   return User.findOne({email})
     .then(user => {
       if (!user) { //user does not exist
+        console.log('such user does not exist');
         return Promise.reject();
       }
 
